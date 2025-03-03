@@ -1,35 +1,58 @@
-# Builds an environment for Cucumber, Selenium, and Firefox
-
-.PHONY: all help cucumber app clean
+.PHONY: all help install build run
 
 help: ## Display this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-\\.]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 all: help
 
-cucumber: ## Install pre-requisite software for Cucumber/Java
-	$(info Install Cucumber/Java prerequisite software...)
-	sudo apt-get update
-	sudo apt-get install -y openjdk-21-jdk maven firefox
-	# Install GeckoDriver for Firefox
-	wget https://github.com/mozilla/geckodriver/releases/download/v0.33.0/geckodriver-v0.33.0-linux64.tar.gz
-	tar -xvzf geckodriver-v0.33.0-linux64.tar.gz
-	sudo mv geckodriver /usr/local/bin/
-	sudo chmod +x /usr/local/bin/geckodriver
-	rm geckodriver-v0.33.0-linux64.tar.gz
- 
-app: ## Run the Petshop application
-	$(info Running Petshop Application...)
-	docker run -d --name petshop \
-		-p 8080:8080 \
-		-e DATABASE_URI=sqlite:///test.db \
-		rofrano/lab-flask-bdd:1.0
+.PHONY: build
+build: ## Build a Docker image
+	$(info Building Docker image...)
+	docker build --rm --pull --tag products:1.0 . 
 
-clean: ## Stop and remove the container
-	$(info Stopping and removing container...)
-	docker stop petshop || true
-	docker rm petshop || true
+install: ## Install Java dependencies
+	$(info Installing dependencies...)
+	./mvnw dependency:resolve
 
-test: ## Run Cucumber tests
+lint: ## Run the linter
+	$(info Running linting...)
+	./mvnw checkstyle:check
+
+.PHONY: tests
+tests: ## Run the unit tests
+	$(info Running tests...)
+	./mvnw test
+
+.PHONY: integration-tests
+integration-tests: ## Run integration tests
+	$(info Running integration tests...)
+	./mvnw verify -P integration-test
+
+run: ## Run the service
+	$(info Starting service...)
+	./mvnw spring-boot:run
+
+dbrm: ## Stop and remove PostgreSQL in Docker
+	$(info Stopping and removing PostgreSQL...)
+	-docker stop postgres
+	-docker rm postgres
+
+db: ## Run PostgreSQL in Docker
+	$(info Running PostgreSQL...)
+	docker run -d --name postgres \
+		-p 5432:5432 \
+		-e POSTGRES_PASSWORD=postgres \
+		-v postgres:/var/lib/postgresql/data \
+		postgres:alpine
+
+clean: ## Clean the project
+	$(info Cleaning the project...)
+	./mvnw clean
+
+package: ## Package the application
+	$(info Packaging the application...)
+	./mvnw package
+
+cucumber: ## Run Cucumber BDD tests
 	$(info Running Cucumber tests...)
-	mvn clean test
+	./mvnw test -Dtest=CucumberTestRunner
