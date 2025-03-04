@@ -4,7 +4,7 @@ import com.productstore.service.model.Product;
 import java.math.BigDecimal;
 import java.util.List;
 
-public interface ProductService {
+public interface ProductServiceInterface {
     Product create(Product product);
     Product update(Long id, Product productDetails);
     void delete(Long id);
