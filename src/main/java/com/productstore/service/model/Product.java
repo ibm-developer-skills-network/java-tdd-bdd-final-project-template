@@ -46,31 +46,7 @@ public class Product {
     public Product() {
     }
 
-    // Constructor with required fields
-    public Product(String name, String description, BigDecimal price) {
-        this.name = name;
-        this.description = description;
-        this.price = price;
-    }
-
-    // Constructor with all fields except id
-    public Product(String name, String description, BigDecimal price, Boolean available, Category category) {
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.available = available;
-        this.category = category;
-    }
-
-    // Constructor with all fields
-    public Product(Long id, String name, String description, BigDecimal price, Boolean available, Category category) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.available = available;
-        this.category = category;
-    }
+   
 
     // Getters and Setters
     public Long getId() {
