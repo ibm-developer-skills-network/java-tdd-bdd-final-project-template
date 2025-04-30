@@ -1,9 +1,8 @@
 package com.productstore.service;
 
-import org.junit.runner.RunWith;
-
 import io.cucumber.junit.Cucumber;
 import io.cucumber.junit.CucumberOptions;
+import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
@@ -14,9 +13,8 @@ import io.cucumber.junit.CucumberOptions;
         "html:target/cucumber-reports/cucumber-pretty.html",
         "json:target/cucumber-reports/CucumberTestReport.json"
     },
-    monochrome = true,
-    dryRun = false
+    monochrome = true
 )
-public class CucumberConfig {
-    // This class serves as an entry point for Cucumber tests
+public class CucumberConfigRunner {
+    // This class serves as an entry point for running the Cucumber tests
 }
